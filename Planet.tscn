@@ -1,0 +1,27 @@
+[gd_scene load_steps=3 format=2]
+
+[sub_resource type="SphereShape" id=3]
+radius = 25.0
+
+[sub_resource type="SphereShape" id=1]
+radius = 50.0
+
+[node name="StaticBody" type="StaticBody"]
+
+[node name="CollisionShape2" type="CollisionShape" parent="."]
+shape = SubResource( 3 )
+
+[node name="CSGSphere" type="CSGSphere" parent="."]
+radius = 25.0
+radial_segments = 32
+rings = 16
+
+[node name="Area" type="Area" parent="."]
+space_override = 1
+gravity_point = true
+gravity_distance_scale = 0.01
+linear_damp = 0.0
+angular_damp = 0.0
+
+[node name="CollisionShape" type="CollisionShape" parent="Area"]
+shape = SubResource( 1 )
