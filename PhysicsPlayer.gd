@@ -4,62 +4,106 @@ onready var _Head : Spatial = $Head
 onready var _Camera : Camera = $Head/Camera
 onready var Raycast : RayCast = $RayCast
 
+onready var last_direction := global_transform.basis.z
+
 var max_leg_force : float = 160.0
-var damping : float = 1.0
-var overcome_damping : float = damping * mass
+var jump_force : float = 200.0
+var damp : float = 10.0
+var overcome_damping : float = damp * mass
 var max_running_speed : float = 3.0
+var rotation_force : float = 500.0
+var rotation_damp : float = 50.0
 
 func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 
-#damping function
-#old
-#m_linearVelocity *= btMax((btScalar(1.0) - timeStep * m_linearDamping), btScalar(0.0));
-#new
-#m_linearVelocity *= btPow(btScalar(1) - m_linearDamping, timeStep);
-#E:\Godot\godot\thirdparty\bullet\BulletDynamics\Dynamics\btRigidBody.cpp
-
 func _physics_process(delta : float) -> void:
 	var input = Input.get_vector("left", "right", "forward", "backward")
 	var transformed = _Head.global_transform.basis.xform(Vector3(input.x, 0, input.y))
+	var body_state := PhysicsServer.body_get_direct_state(get_rid())
 	#if on ground
 	#might want to change this to a capsule shape
 	if Raycast.is_colliding():
 		#prevents bobbing up and down
-		legs_force(delta)
+		legs_force(delta, body_state)
+		movement_damping(delta, body_state)
+		keep_upright(delta, body_state)
+		rotation_damping(delta, body_state )
 		ground_movement(transformed, delta)
+		keep_upright(delta, body_state)
 	else:
 		#when not on ground, don't damp, it messes with other physics
 		air_movement(transformed, delta)
+	
+	if (body_state.total_gravity.length() > 0):
+		pass
+	
+	last_direction = global_transform.basis.z
 
 #keeps the player hovering above the ground
-func legs_force(delta : float) -> void:
+func legs_force(delta : float, body_state : PhysicsDirectBodyState) -> void:
 	#keeps verical hight where it should be
 	var distance = (global_transform.origin + global_transform.basis.y * -0.3).distance_to(Raycast.get_collision_point())
-	var force : float = range_lerp(distance, 0, 0.7, max_leg_force, 0) - linear_velocity.y * 50
-	apply_impulse(global_transform.basis.y * -1, global_transform.basis.y * force * 9.8 * delta)
-	
-	#keep upright
-	
-	
+	#allows crouching
+	var leg_height : float = (0.7 * float(!Input.is_action_pressed("crouch"))) + (0.3 * float(Input.is_action_pressed("crouch")))
+	#basically makes jumping the same as stiff-legging
+	var min_force : float = jump_force * float(Input.is_action_pressed("jump"))
+	var force : float = clamp(range_lerp(distance, 0, leg_height, max_leg_force, min_force), 0, max_leg_force)
+	apply_impulse(global_transform.basis.y * -1, global_transform.basis.y * force * body_state.total_gravity.length() * delta)
 
-func ground_movement(direction : Vector3, delta : float) -> void:
+func movement_damping(delta : float, body_state : PhysicsDirectBodyState) -> void:
+	#transform to local y axis
+	var local_y_velocity : float = global_transform.basis.xform_inv(linear_velocity).y
+	var damp_force := -local_y_velocity * damp
 	
+	apply_impulse(global_transform.basis.y * -1, global_transform.basis.y * damp_force * body_state.total_gravity.length() * delta)
+
+func keep_upright(delta : float, body_state : PhysicsDirectBodyState) -> void:
+	var up : Vector3 = -body_state.total_gravity.normalized()
+	
+	up += global_transform.basis.y * float(up == Vector3.ZERO)
+	
+	var left_axis := up.cross(last_direction)
+	var desired_orientation := Basis(left_axis, up, last_direction).orthonormalized()
+	
+	var force : Quat = quat_to_axis_angle((desired_orientation * global_transform.basis.inverse()).get_rotation_quat())
+	apply_torque_impulse(Vector3(force.x, force.y, force.z) * force.w * rotation_force * delta)
+
+func rotation_damping(delta : float, _body_state : PhysicsDirectBodyState) -> void:
+	apply_torque_impulse(-angular_velocity * rotation_damp * delta)
+
+#direction is already in global space
+func ground_movement(direction : Vector3, delta : float) -> void:
 	var desired_velocity := direction * max_running_speed
 	var force := (desired_velocity - linear_velocity) * max_leg_force
-	print(linear_velocity)
 	
 	#full force when standing still or slowing down
 	apply_central_impulse(force * delta)
 
-func air_movement(direction : Vector3, delta : float) -> void:
+func air_movement(_direction : Vector3, _delta : float) -> void:
 	pass
-
-static func bias(x : float, bias : float) -> float:
-	var k : float = pow(1 - bias, 3)
-	return (x * k) / (x * k - x + 1)
 
 func _unhandled_input(event : InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		_Head.rotation_degrees.y -= event.relative.x * 0.1
 		_Camera.rotation_degrees.x -= event.relative.y * 0.1
+
+static func quat_to_axis_angle(quat : Quat) -> Quat:
+	var axis_angle := Quat(0, 0, 0, 0)
+	
+	if quat.w > 1: #if w>1 acos and sqrt will produce errors, this cant happen if quaternion is normalised
+		quat = quat.normalized()
+	
+	var _angle = 2.0 * acos(quat.w)
+	axis_angle.w = sqrt(1 - quat.w * quat.w) #assuming quaternion normalised then w is less than 1, so term always positive.
+	
+	if axis_angle.w < 0.00001: #test to avoid divide by zero, s is always positive due to sqrt
+		axis_angle.x = quat.x
+		axis_angle.y = quat.y
+		axis_angle.z = quat.z
+	else:
+		axis_angle.x = quat.x / axis_angle.w
+		axis_angle.y = quat.y / axis_angle.w
+		axis_angle.z = quat.z / axis_angle.w
+
+	return axis_angle
