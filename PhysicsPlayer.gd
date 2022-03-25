@@ -6,13 +6,13 @@ onready var Raycast : RayCast = $RayCast
 
 onready var last_direction := global_transform.basis.z
 
-var max_leg_force : float = 160.0
-var jump_force : float = 200.0
-var damp : float = 10.0
-var overcome_damping : float = damp * mass
-var max_running_speed : float = 3.0
-var rotation_force : float = 500.0
-var rotation_damp : float = 50.0
+export var max_leg_force : float = 160.0
+export var jump_force : float = 200.0
+export var damp : float = 10.0
+export var overcome_damping : float = damp * mass
+export var max_running_speed : float = 3.0
+export var rotation_force : float = 500.0
+export var rotation_damp : float = 50.0
 
 func _ready() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
