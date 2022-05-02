@@ -7,7 +7,7 @@
 [node name="Spatial" type="Spatial"]
 
 [node name="RigidBody" parent="." instance=ExtResource( 1 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 25.6128, 0 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 26.7823, 0 )
 mass = 75.0
 
 [node name="StaticBody" parent="." instance=ExtResource( 2 )]

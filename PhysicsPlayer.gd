@@ -30,7 +30,6 @@ func _physics_process(delta : float) -> void:
 		keep_upright(delta, body_state)
 		rotation_damping(delta, body_state )
 		ground_movement(transformed, delta)
-		keep_upright(delta, body_state)
 	else:
 		#when not on ground, don't damp, it messes with other physics
 		air_movement(transformed, delta)
@@ -48,6 +47,7 @@ func legs_force(delta : float, body_state : PhysicsDirectBodyState) -> void:
 	var leg_height : float = (0.7 * float(!Input.is_action_pressed("crouch"))) + (0.3 * float(Input.is_action_pressed("crouch")))
 	#basically makes jumping the same as stiff-legging
 	var min_force : float = jump_force * float(Input.is_action_pressed("jump"))
+	
 	var force : float = clamp(range_lerp(distance, 0, leg_height, max_leg_force, min_force), 0, max_leg_force)
 	apply_impulse(global_transform.basis.y * -1, global_transform.basis.y * force * body_state.total_gravity.length() * delta)
 

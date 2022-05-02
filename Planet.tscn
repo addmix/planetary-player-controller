@@ -30,6 +30,7 @@ rings = 16
 [node name="Area" type="Area" parent="."]
 space_override = 1
 gravity_point = true
+gravity_vec = Vector3( 0, 0, 0 )
 linear_damp = 0.0
 angular_damp = 0.0
 
