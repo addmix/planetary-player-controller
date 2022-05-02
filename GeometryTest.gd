@@ -1,4 +1,4 @@
-extends MeshInstance
+extends MeshInstance3D
 
 var golden_ratio : float = (1 + sqrt(5)) / 2
 
@@ -11,12 +11,12 @@ func _ready() -> void:
 	var arr : Array = []
 	arr.resize(Mesh.ARRAY_MAX)
 	
-	var verts := PoolVector3Array([Vector3(-X,N,Z), Vector3(X,N,Z), Vector3(-X,N,-Z), Vector3(X,N,-Z),
+	var verts : Array[Vector3]= [Vector3(-X,N,Z), Vector3(X,N,Z), Vector3(-X,N,-Z), Vector3(X,N,-Z),
 		Vector3(N,Z,X), Vector3(N,Z,-X), Vector3(N,-Z,X), Vector3(N,-Z,-X),
-		Vector3(Z,X,N), Vector3(-Z,X,N), Vector3(Z,-X,N), Vector3(-Z,-X,N)])
-	var uvs := PoolVector2Array()
-	var normals := PoolVector3Array()
-	var indices := PoolIntArray([
+		Vector3(Z,X,N), Vector3(-Z,X,N), Vector3(Z,-X,N), Vector3(-Z,-X,N)]
+	var uvs : Array[Vector2] = []
+	var normals : Array[Vector3] = []
+	var indices : Array[int] = [
 		0,4,1,
 		0,9,4,
 		9,5,4,
@@ -36,12 +36,10 @@ func _ready() -> void:
 		9,0,11,
 		9,11,2,
 		9,2,5,
-		7,2,11])
+		7,2,11]
 	
 	for vert in verts:
 		normals.append(vert.normalized())
-	
-	
 	
 	arr[Mesh.ARRAY_VERTEX] = verts
 #	arr[Mesh.ARRAY_TEX_UV] = uvs
