@@ -1,4 +1,4 @@
-extends RigidBody
+	extends RigidBody
 
 onready var _Head : Spatial = $Head
 onready var _Camera : Camera = $Head/Camera
@@ -27,12 +27,14 @@ func _physics_process(delta : float) -> void:
 		#prevents bobbing up and down
 		legs_force(delta, body_state)
 		movement_damping(delta, body_state)
-		keep_upright(delta, body_state)
-		rotation_damping(delta, body_state )
+		
 		ground_movement(transformed, delta)
 	else:
 		#when not on ground, don't damp, it messes with other physics
 		air_movement(transformed, delta)
+	
+	keep_upright(delta, body_state)
+	rotation_damping(delta, body_state)
 	
 	if (body_state.total_gravity.length() > 0):
 		pass
@@ -63,10 +65,10 @@ func keep_upright(delta : float, body_state : PhysicsDirectBodyState) -> void:
 	
 	up += global_transform.basis.y * float(up == Vector3.ZERO)
 	
-	var left_axis := up.cross(last_direction)
-	var desired_orientation := Basis(left_axis, up, last_direction).orthonormalized()
+	var right_axis := up.cross(last_direction)
+	var desired_orientation := Basis(right_axis, up, last_direction).orthonormalized()
 	
-	var force : Quat = quat_to_axis_angle((desired_orientation * global_transform.basis.inverse()).get_rotation_quat())
+	var force : Quat = MathUtils.quat_to_axis_angle((desired_orientation * global_transform.basis.inverse()).get_rotation_quat())
 	apply_torque_impulse(Vector3(force.x, force.y, force.z) * force.w * rotation_force * delta)
 
 func rotation_damping(delta : float, _body_state : PhysicsDirectBodyState) -> void:
@@ -87,23 +89,3 @@ func _unhandled_input(event : InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		_Head.rotation_degrees.y -= event.relative.x * 0.1
 		_Camera.rotation_degrees.x -= event.relative.y * 0.1
-
-static func quat_to_axis_angle(quat : Quat) -> Quat:
-	var axis_angle := Quat(0, 0, 0, 0)
-	
-	if quat.w > 1: #if w>1 acos and sqrt will produce errors, this cant happen if quaternion is normalised
-		quat = quat.normalized()
-	
-	var _angle = 2.0 * acos(quat.w)
-	axis_angle.w = sqrt(1 - quat.w * quat.w) #assuming quaternion normalised then w is less than 1, so term always positive.
-	
-	if axis_angle.w < 0.00001: #test to avoid divide by zero, s is always positive due to sqrt
-		axis_angle.x = quat.x
-		axis_angle.y = quat.y
-		axis_angle.z = quat.z
-	else:
-		axis_angle.x = quat.x / axis_angle.w
-		axis_angle.y = quat.y / axis_angle.w
-		axis_angle.z = quat.z / axis_angle.w
-
-	return axis_angle

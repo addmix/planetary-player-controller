@@ -1,14 +1,27 @@
-[gd_scene load_steps=4 format=2]
+[gd_scene load_steps=6 format=2]
 
 [ext_resource path="res://PhysicsPlayer.tscn" type="PackedScene" id=1]
-[ext_resource path="res://Planet.tscn" type="PackedScene" id=2]
-[ext_resource path="res://Planet.gd" type="Script" id=3]
+
+[sub_resource type="OpenSimplexNoise" id=2]
+period = 5.1
+
+[sub_resource type="NoiseTexture" id=3]
+noise = SubResource( 2 )
+
+[sub_resource type="SpatialMaterial" id=4]
+albedo_color = Color( 0.372549, 0.588235, 0.356863, 1 )
+albedo_texture = SubResource( 3 )
+
+[sub_resource type="PlaneMesh" id=1]
+material = SubResource( 4 )
+size = Vector2( 200, 200 )
 
 [node name="Spatial" type="Spatial"]
 
 [node name="RigidBody" parent="." instance=ExtResource( 1 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 26.7823, 0 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.34599, 0 )
 mass = 75.0
 
-[node name="StaticBody" parent="." instance=ExtResource( 2 )]
-script = ExtResource( 3 )
+[node name="CSGMesh" type="CSGMesh" parent="."]
+use_collision = true
+mesh = SubResource( 1 )
