@@ -1,22 +1,21 @@
-extends Spatial
+extends SpringArm3D
 
-onready var back : Spatial = self
-onready var arms : Spatial = $Arms
-onready var hands : Spatial = $Arms/Hands
+onready var back : SpringArm3D = self
+onready var bicep : SpringArm3D = $Bicep
+onready var forearm : SpringArm3D = $Bicep/Forearm
+onready var hands : SpringArm3D = $Bicep/Forearm/Hands
 
-onready var back_default_transform := transform
-onready var arms_default_transform := arms.transform
-onready var hands_default_transform := hands.transform
-
-var arm_spring := Spring3D.new(Vector3.ZERO, Vector3.ZERO, Vector3.ZERO, 0.5, 10)
-var hand_spring := Spring3D.new(Vector3.ZERO, Vector3.ZERO, Vector3.ZERO, 0.5, 10)
-var back_spring := Spring3D.new(Vector3.ZERO, Vector3.ZERO, Vector3.ZERO, 0.5, 10)
+onready var hand_impulse_position : Position3D = $Bicep/Forearm/Hands/ImpulsePosition
+onready var brace_impulse_position : Position3D = $Bicep/Forearm/ImpulsePosition
+onready var stock_impulse_position : Position3D = $ImpulsePosition
+export var has_stock : bool = false
+export var impulse_force : float = 3.5
 
 func _physics_process(delta : float) -> void:
-	back_spring._process(delta)
-	arm_spring._process(delta)
-	hand_spring._process(delta)
-	
-	back.rotation = back_spring.position
-	arms.rotation = arm_spring.position
-	hands.rotation = hand_spring.position
+	pass
+
+func _input(event):
+	if event.is_action_pressed("fire"):
+		hands.apply_impulse(hand_impulse_position.transform.origin, hand_impulse_position.transform.basis.z * impulse_force)
+#		forearm.apply_impulse(brace_impulse_position.transform.origin, brace_impulse_position.transform.basis.z * impulse_force)
+#		back.apply_impulse(stock_impulse_position.transform.origin, stock_impulse_position.transform.basis.z * impulse_force)
