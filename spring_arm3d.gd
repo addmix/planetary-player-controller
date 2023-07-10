@@ -67,11 +67,6 @@ func update_spring() -> void:
 	spring.damping = damping
 	spring.speed = speed
 	spring.mass = mass
-	spring.clamp_x = clamp_x
-	spring.clamp_y = clamp_y
-	spring.clamp_z = clamp_z
-	spring._min = _min
-	spring._max = _max
 
 func get_class() -> String:
 	return "SpringArm3D"
@@ -83,7 +78,7 @@ func _ready() -> void:
 		parent_physics_body = get_parent() as RigidBody
 
 func _process(delta : float) -> void:
-	spring._process(delta)
+	spring.positionvelocity(delta)
 	rotation = spring.position
 
 func apply_impulse(position : Vector3, impulse : Vector3) -> void:
