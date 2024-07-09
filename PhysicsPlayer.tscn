@@ -9,14 +9,17 @@ friction = 0.16
 radius = 0.3
 height = 1.0
 
-[node name="RigidBody" type="RigidDynamicBody3D"]
-physics_material_override = SubResource( "2" )
+[node name="RigidBody" type="RigidBody3D"]
+mass = 80.0
+physics_material_override = SubResource("2")
 can_sleep = false
-script = ExtResource( "1" )
+script = ExtResource("1")
+max_leg_force = 180.0
+jump_force = 400.0
 
 [node name="CollisionShape" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 0)
-shape = SubResource( "1" )
+shape = SubResource("1")
 
 [node name="RayCast" type="RayCast3D" parent="."]
 
@@ -24,4 +27,3 @@ shape = SubResource( "1" )
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.7, 0)
 
 [node name="Camera" type="Camera3D" parent="Head"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 2.21133)

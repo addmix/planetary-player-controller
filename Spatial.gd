@@ -5,5 +5,5 @@ func _ready() -> void:
 
 func _unhandled_input(event : InputEvent) -> void:
 	if event is InputEventMouseMotion:
-		rotation.y -= deg2rad(event.relative.x * 0.1)
-		rotation.x -= deg2rad(event.relative.y * 0.1)
+		rotation.y -= deg_to_rad(event.relative.x * 0.1)
+		rotation.x -= deg_to_rad(event.relative.y * 0.1)

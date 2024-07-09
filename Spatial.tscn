@@ -6,9 +6,9 @@
 
 [node name="Spatial" type="Node3D"]
 
-[node name="RigidBody" parent="." instance=ExtResource( "1" )]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 25.6128, 0)
+[node name="RigidBody" parent="." instance=ExtResource("1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 25.1881, 0)
 mass = 75.0
 
-[node name="StaticBody" parent="." instance=ExtResource( "2" )]
-script = ExtResource( "3" )
+[node name="StaticBody" parent="." instance=ExtResource("2")]
+script = ExtResource("3")
