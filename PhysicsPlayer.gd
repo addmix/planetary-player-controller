@@ -74,7 +74,7 @@ func keep_upright(delta : float, body_state : PhysicsDirectBodyState3D) -> void:
 	var desired_orientation := Basis(right_axis, up, last_direction).orthonormalized()
 
 	var inv := global_transform.basis.inverse()
-	var force : Quaternion = MathUtils.quat_to_axis_angle((desired_orientation * inv).get_rotation_quaternion())
+	var force : Vector4 = TransformUtils.quat_to_axis_angle((desired_orientation * inv).get_rotation_quaternion())
 	apply_torque(Vector3(force.x, force.y, force.z) * force.w * rotation_force)
 
 func rotation_damping(delta : float, _body_state : PhysicsDirectBodyState3D) -> void:
